@@ -248,7 +248,7 @@ flowchart LR
 
 ### ❓ How To Play
 
-![How To Play](Screenshots/HowToPlay.png)
+![How To Play](Screenshots/HowtoPlay.png)
 
 ### 🏆 High Scores
 
