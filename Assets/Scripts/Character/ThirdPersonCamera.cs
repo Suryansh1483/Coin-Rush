@@ -2,8 +2,14 @@
 
 public class ThirdPersonCamera : MonoBehaviour
 {
+    #region Target
+
     [Header("Target")]
     public Transform target;
+
+    #endregion
+
+    #region Camera Settings
 
     [Header("Camera Settings")]
     public float distance = 5f;
@@ -11,26 +17,28 @@ public class ThirdPersonCamera : MonoBehaviour
     public float sensitivity = 3f;
     public float smoothSpeed = 10f;
 
+    #endregion
+
+    #region Rotation Limits
+
     [Header("Pitch Limits")]
-    public Vector2 pitchLimits = new Vector2(-30f, 60f);
+    public Vector2 pitchLimits =
+        new Vector2(-30f, 60f);
+
+    #endregion
+
+    #region Private Variables
 
     private float yaw;
     private float pitch;
 
+    #endregion
+
+    #region Unity Events
+
     private void Start()
     {
-        if (target == null)
-        {
-            Debug.LogError("ThirdPersonCamera: Target not assigned.");
-            enabled = false;
-            return;
-        }
-
-        yaw = transform.eulerAngles.y;
-        pitch = transform.eulerAngles.x;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        InitializeCamera();
     }
 
     private void LateUpdate()
@@ -38,25 +46,71 @@ public class ThirdPersonCamera : MonoBehaviour
         if (target == null)
             return;
 
-        if (Time.timeScale > 0f)
+        HandleCameraInput();
+        UpdateCameraPosition();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeCamera()
+    {
+        if (target == null)
         {
-            float currentSensitivity = PlayerPrefs.GetFloat("MouseSensitivity",sensitivity);
-
-            yaw +=
-                Input.GetAxis("Mouse X") *
-                currentSensitivity;
-
-            pitch -=
-                Input.GetAxis("Mouse Y") *
-                currentSensitivity;
-
-            pitch = Mathf.Clamp(
-                pitch,
-                pitchLimits.x,
-                pitchLimits.y
+            Debug.LogError(
+                "ThirdPersonCamera: Target not assigned."
             );
+
+            enabled = false;
+            return;
         }
 
+        yaw = transform.eulerAngles.y;
+        pitch = transform.eulerAngles.x;
+
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
+        Cursor.visible = false;
+    }
+
+    #endregion
+
+    #region Camera Input
+
+    private void HandleCameraInput()
+    {
+        if (Time.timeScale <= 0f)
+            return;
+
+        float currentSensitivity =
+            PlayerPrefs.GetFloat(
+                "MouseSensitivity",
+                sensitivity
+            );
+
+        yaw +=
+            Input.GetAxis("Mouse X") *
+            currentSensitivity;
+
+        pitch -=
+            Input.GetAxis("Mouse Y") *
+            currentSensitivity;
+
+        pitch = Mathf.Clamp(
+            pitch,
+            pitchLimits.x,
+            pitchLimits.y
+        );
+    }
+
+    #endregion
+
+    #region Camera Movement
+
+    private void UpdateCameraPosition()
+    {
         Quaternion rotation =
             Quaternion.Euler(
                 pitch,
@@ -78,4 +132,6 @@ public class ThirdPersonCamera : MonoBehaviour
 
         transform.rotation = rotation;
     }
+
+    #endregion
 }

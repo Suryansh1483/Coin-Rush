@@ -2,12 +2,22 @@
 
 public class AudioManager : MonoBehaviour
 {
+    #region Singleton
+
     public static AudioManager instance;
+
+    #endregion
+
+    #region Audio Sources
 
     [Header("Audio Sources")]
     public AudioSource menuMusicSource;
     public AudioSource gameAudioSource;
     public AudioSource sfxSource;
+
+    #endregion
+
+    #region Audio Clips
 
     [Header("Menu")]
     public AudioClip menuMusic;
@@ -16,14 +26,22 @@ public class AudioManager : MonoBehaviour
     public AudioClip idleClip;
     public AudioClip walkClip;
 
-    [Header("SFX")]
+    [Header("Sound Effects")]
     public AudioClip coinClip;
     public AudioClip hurtClip;
     public AudioClip winClip;
     public AudioClip gameOverClip;
     public AudioClip buttonClickClip;
 
+    #endregion
+
+    #region Private Variables
+
     private bool isWalking;
+
+    #endregion
+
+    #region Unity Events
 
     private void Awake()
     {
@@ -38,6 +56,15 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
+        LoadSavedVolumes();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void LoadSavedVolumes()
+    {
         SetMenuMusicVolume(
             PlayerPrefs.GetFloat("MusicVolume", 1f)
         );
@@ -46,6 +73,10 @@ public class AudioManager : MonoBehaviour
             PlayerPrefs.GetFloat("SFXVolume", 1f)
         );
     }
+
+    #endregion
+
+    #region Menu Audio
 
     public void PlayMenuMusic()
     {
@@ -56,7 +87,9 @@ public class AudioManager : MonoBehaviour
             menuMusicSource.clip == menuMusic &&
             menuMusicSource.isPlaying
         )
+        {
             return;
+        }
 
         menuMusicSource.clip = menuMusic;
         menuMusicSource.loop = true;
@@ -65,9 +98,15 @@ public class AudioManager : MonoBehaviour
 
     public void StopMenuMusic()
     {
-        if (menuMusicSource != null)
-            menuMusicSource.Stop();
+        if (menuMusicSource == null)
+            return;
+
+        menuMusicSource.Stop();
     }
+
+    #endregion
+
+    #region Gameplay Audio
 
     public void PlayIdle()
     {
@@ -78,7 +117,9 @@ public class AudioManager : MonoBehaviour
             gameAudioSource.clip == idleClip &&
             gameAudioSource.isPlaying
         )
+        {
             return;
+        }
 
         gameAudioSource.clip = idleClip;
         gameAudioSource.loop = true;
@@ -113,24 +154,16 @@ public class AudioManager : MonoBehaviour
     public void StopGameplayAudio()
     {
         if (gameAudioSource != null)
+        {
             gameAudioSource.Stop();
+        }
 
         isWalking = false;
     }
 
-    public void StopAllAudio()
-    {
-        if (menuMusicSource != null)
-            menuMusicSource.Stop();
+    #endregion
 
-        if (gameAudioSource != null)
-            gameAudioSource.Stop();
-
-        if (sfxSource != null)
-            sfxSource.Stop();
-
-        isWalking = false;
-    }
+    #region Sound Effects
 
     public void PlayCoin()
     {
@@ -179,10 +212,16 @@ public class AudioManager : MonoBehaviour
         sfxSource.PlayOneShot(clip);
     }
 
+    #endregion
+
+    #region Volume Controls
+
     public void SetMenuMusicVolume(float value)
     {
         if (menuMusicSource != null)
+        {
             menuMusicSource.volume = value;
+        }
 
         PlayerPrefs.SetFloat(
             "MusicVolume",
@@ -193,14 +232,33 @@ public class AudioManager : MonoBehaviour
     public void SetGameAudioVolume(float value)
     {
         if (gameAudioSource != null)
+        {
             gameAudioSource.volume = value;
+        }
 
         if (sfxSource != null)
+        {
             sfxSource.volume = value;
+        }
 
         PlayerPrefs.SetFloat(
             "SFXVolume",
             value
         );
     }
+
+    #endregion
+
+    #region Global Audio Controls
+
+    public void StopAllAudio()
+    {
+        menuMusicSource?.Stop();
+        gameAudioSource?.Stop();
+        sfxSource?.Stop();
+
+        isWalking = false;
+    }
+
+    #endregion
 }

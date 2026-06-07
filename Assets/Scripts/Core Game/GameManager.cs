@@ -1,11 +1,17 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    #region Singleton
+
     public static GameManager instance;
+
+    #endregion
+
+    #region References
 
     [Header("Player")]
     public Transform player;
@@ -14,26 +20,53 @@ public class GameManager : MonoBehaviour
     [Header("HUD")]
     public TMP_Text timerText;
 
+    #endregion
+
+    #region Win UI
+
     [Header("Win Panel")]
     public GameObject winPanel;
     public TMP_Text winTimeText;
     public TMP_Text winCoinText;
     public GameObject highScoreText;
 
+    #endregion
+
+    #region Game Over UI
+
     [Header("Game Over Panel")]
     public GameObject gameOverPanel;
     public TMP_Text gameOverTimeText;
     public TMP_Text gameOverCoinText;
 
-    [Header("Coins")]
+    #endregion
+
+    #region Coin Settings
+
+    [Header("Coin Settings")]
     public GameObject coinPrefab;
     public int coinCount = 25;
-    public Vector3 spawnArea = new Vector3(20f, 1f, 20f);
+    public Vector3 spawnArea =
+        new Vector3(20f, 1f, 20f);
+
+    #endregion
+
+    #region Private Variables
 
     private float elapsedTime;
     private bool gameEnded;
 
-    private readonly List<GameObject> spawnedCoins = new();
+    private readonly List<GameObject> spawnedCoins =
+        new();
+
+    private CharacterController characterController;
+    private ThirdPersonController playerController;
+    private PlayerHealth playerHealth;
+    private CoinCollector coinCollector;
+
+    #endregion
+
+    #region Unity Events
 
     private void Awake()
     {
@@ -41,6 +74,20 @@ public class GameManager : MonoBehaviour
     }
 
     private void Start()
+    {
+        InitializeGame();
+    }
+
+    private void Update()
+    {
+        UpdateTimer();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeGame()
     {
         AudioManager.instance?.StopMenuMusic();
         AudioManager.instance?.PlayIdle();
@@ -50,7 +97,9 @@ public class GameManager : MonoBehaviour
         elapsedTime = 0f;
         gameEnded = false;
 
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
         Cursor.visible = false;
 
         winPanel.SetActive(false);
@@ -59,10 +108,31 @@ public class GameManager : MonoBehaviour
         if (highScoreText != null)
             highScoreText.SetActive(false);
 
+        CacheReferences();
+
         SpawnCoins();
     }
 
-    private void Update()
+    private void CacheReferences()
+    {
+        characterController =
+            player.GetComponent<CharacterController>();
+
+        playerController =
+            player.GetComponent<ThirdPersonController>();
+
+        playerHealth =
+            player.GetComponent<PlayerHealth>();
+
+        coinCollector =
+            player.GetComponent<CoinCollector>();
+    }
+
+    #endregion
+
+    #region Timer
+
+    private void UpdateTimer()
     {
         if (gameEnded)
             return;
@@ -70,18 +140,29 @@ public class GameManager : MonoBehaviour
         elapsedTime += Time.deltaTime;
 
         if (timerText != null)
-            timerText.text = "TIME: " + elapsedTime.ToString("F2") + "s";
-    }
-
-    public bool IsGameEnded()
-    {
-        return gameEnded;
+        {
+            timerText.text =
+                $"TIME: {elapsedTime:F2}s";
+        }
     }
 
     public void AddPenaltyTime(float seconds)
     {
         elapsedTime += seconds;
     }
+
+    #endregion
+
+    #region State
+
+    public bool IsGameEnded()
+    {
+        return gameEnded;
+    }
+
+    #endregion
+
+    #region Win
 
     public void WinGame()
     {
@@ -95,41 +176,50 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
 
-        CoinCollector collector =
-            player.GetComponent<CoinCollector>();
-
         if (winCoinText != null)
+        {
             winCoinText.text =
-                "COINS: " +
-                collector.coins +
-                "/" +
-                coinCount;
+                $"COINS: {coinCollector.CoinCount}/{coinCount}";
+        }
 
         if (winTimeText != null)
+        {
             winTimeText.text =
-                "TIME: " +
-                elapsedTime.ToString("F2") +
-                "s";
+                $"TIME: {elapsedTime:F2}s";
+        }
 
         bool isHighScore =
-            HighScoreManager.IsHighScore(elapsedTime);
+            HighScoreManager.IsHighScore(
+                elapsedTime
+            );
 
         if (highScoreText != null)
-            highScoreText.SetActive(isHighScore);
+        {
+            highScoreText.SetActive(
+                isHighScore
+            );
+        }
 
-        HighScoreManager.SaveScore(elapsedTime);
+        HighScoreManager.SaveScore(
+            elapsedTime
+        );
 
         winPanel.SetActive(true);
 
-        ThirdPersonController controller =
-            player.GetComponent<ThirdPersonController>();
-
-        if (controller != null)
-            controller.canMove = false;
+        if (playerController != null)
+        {
+            playerController.canMove = false;
+        }
     }
+
+    #endregion
+
+    #region Game Over
 
     public void TriggerGameOver()
     {
@@ -143,33 +233,34 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
 
-        CoinCollector collector =
-            player.GetComponent<CoinCollector>();
-
         if (gameOverCoinText != null)
+        {
             gameOverCoinText.text =
-                "COINS: " +
-                collector.coins +
-                "/" +
-                coinCount;
+                $"COINS: {coinCollector.CoinCount}/{coinCount}";
+        }
 
         if (gameOverTimeText != null)
+        {
             gameOverTimeText.text =
-                "TIME: " +
-                elapsedTime.ToString("F2") +
-                "s";
+                $"TIME: {elapsedTime:F2}s";
+        }
 
         gameOverPanel.SetActive(true);
 
-        ThirdPersonController controller =
-            player.GetComponent<ThirdPersonController>();
-
-        if (controller != null)
-            controller.canMove = false;
+        if (playerController != null)
+        {
+            playerController.canMove = false;
+        }
     }
+
+    #endregion
+
+    #region Restart
 
     public void RestartGame()
     {
@@ -178,57 +269,52 @@ public class GameManager : MonoBehaviour
         elapsedTime = 0f;
         gameEnded = false;
 
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
         Cursor.visible = false;
 
         winPanel.SetActive(false);
         gameOverPanel.SetActive(false);
 
         if (highScoreText != null)
-            highScoreText.SetActive(false);
-
-        CharacterController cc =
-            player.GetComponent<CharacterController>();
-
-        if (cc != null)
-            cc.enabled = false;
-
-        player.position = fixedSpawnPoint.position;
-        player.rotation = fixedSpawnPoint.rotation;
-
-        if (cc != null)
-            cc.enabled = true;
-
-        ThirdPersonController controller =
-            player.GetComponent<ThirdPersonController>();
-
-        if (controller != null)
-            controller.canMove = true;
-
-        PlayerHealth health =
-            player.GetComponent<PlayerHealth>();
-
-        if (health != null)
-            health.ResetHealth();
-
-        CoinCollector collector =
-            player.GetComponent<CoinCollector>();
-
-        if (collector != null)
-            collector.ResetCoins();
-
-        foreach (GameObject coin in spawnedCoins)
         {
-            if (coin != null)
-                Destroy(coin);
+            highScoreText.SetActive(false);
         }
 
-        spawnedCoins.Clear();
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
 
+        player.position =
+            fixedSpawnPoint.position;
+
+        player.rotation =
+            fixedSpawnPoint.rotation;
+
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
+
+        if (playerController != null)
+        {
+            playerController.canMove = true;
+        }
+
+        playerHealth?.ResetHealth();
+        coinCollector?.ResetCoins();
+
+        ClearCoins();
         SpawnCoins();
 
         AudioManager.instance?.PlayIdle();
     }
+
+    #endregion
+
+    #region Scene Management
 
     public void LoadMainMenu()
     {
@@ -236,21 +322,36 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
 
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene(
+            "MainMenu"
+        );
     }
+
+    #endregion
+
+    #region Coin Spawning
 
     private void SpawnCoins()
     {
         for (int i = 0; i < coinCount; i++)
         {
-            Vector3 randomPosition = new Vector3(
-                Random.Range(-spawnArea.x / 2f, spawnArea.x / 2f),
-                spawnArea.y,
-                Random.Range(-spawnArea.z / 2f, spawnArea.z / 2f)
-            );
+            Vector3 randomPosition =
+                new Vector3(
+                    Random.Range(
+                        -spawnArea.x / 2f,
+                        spawnArea.x / 2f
+                    ),
+                    spawnArea.y,
+                    Random.Range(
+                        -spawnArea.z / 2f,
+                        spawnArea.z / 2f
+                    )
+                );
 
             GameObject coin =
                 Instantiate(
@@ -262,4 +363,19 @@ public class GameManager : MonoBehaviour
             spawnedCoins.Add(coin);
         }
     }
+
+    private void ClearCoins()
+    {
+        foreach (GameObject coin in spawnedCoins)
+        {
+            if (coin != null)
+            {
+                Destroy(coin);
+            }
+        }
+
+        spawnedCoins.Clear();
+    }
+
+    #endregion
 }

@@ -2,12 +2,26 @@ using UnityEngine;
 
 public class PauseManager : MonoBehaviour
 {
+    #region Singleton
+
     public static PauseManager instance;
+
+    #endregion
+
+    #region UI References
 
     [Header("UI")]
     public GameObject pausePanel;
 
+    #endregion
+
+    #region Private Variables
+
     private bool isPaused;
+
+    #endregion
+
+    #region Unity Events
 
     private void Awake()
     {
@@ -16,13 +30,33 @@ public class PauseManager : MonoBehaviour
 
     private void Start()
     {
+        InitializePauseMenu();
+    }
+
+    private void Update()
+    {
+        HandlePauseInput();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializePauseMenu()
+    {
         if (pausePanel != null)
+        {
             pausePanel.SetActive(false);
+        }
 
         isPaused = false;
     }
 
-    private void Update()
+    #endregion
+
+    #region Input
+
+    private void HandlePauseInput()
     {
         if (GameManager.instance == null)
             return;
@@ -30,14 +64,22 @@ public class PauseManager : MonoBehaviour
         if (GameManager.instance.IsGameEnded())
             return;
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (!Input.GetKeyDown(KeyCode.Escape))
+            return;
+
+        if (isPaused)
         {
-            if (isPaused)
-                ResumeGame();
-            else
-                PauseGame();
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
         }
     }
+
+    #endregion
+
+    #region Pause Control
 
     public void PauseGame()
     {
@@ -46,14 +88,16 @@ public class PauseManager : MonoBehaviour
 
         isPaused = true;
 
-        AudioManager.instance?.StopAllAudio();
-
         Time.timeScale = 0f;
 
         if (pausePanel != null)
+        {
             pausePanel.SetActive(true);
+        }
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
     }
 
@@ -67,20 +111,30 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 1f;
 
         if (pausePanel != null)
+        {
             pausePanel.SetActive(false);
+        }
 
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
         Cursor.visible = false;
 
         AudioManager.instance?.PlayIdle();
     }
+
+    #endregion
+
+    #region Button Actions
 
     public void RestartGame()
     {
         isPaused = false;
 
         if (pausePanel != null)
+        {
             pausePanel.SetActive(false);
+        }
 
         GameManager.instance.RestartGame();
     }
@@ -90,10 +144,23 @@ public class PauseManager : MonoBehaviour
         isPaused = false;
 
         if (pausePanel != null)
+        {
             pausePanel.SetActive(false);
+        }
 
         AudioManager.instance?.StopAllAudio();
 
         GameManager.instance.LoadMainMenu();
     }
+
+    #endregion
+
+    #region Utility
+
+    public bool IsPaused()
+    {
+        return isPaused;
+    }
+
+    #endregion
 }

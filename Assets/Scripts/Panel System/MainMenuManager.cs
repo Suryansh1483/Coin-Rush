@@ -1,34 +1,65 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
-using System.Collections.Generic;
 
 public class MainMenuManager : MonoBehaviour
 {
+    #region UI Panels
+
     [Header("Panels")]
     public GameObject backgroundPanel;
     public GameObject howToPlayPanel;
     public GameObject bestScorePanel;
 
+    #endregion
+
+    #region High Score UI
+
     [Header("High Score UI")]
     public TMP_Text scoresText;
 
+    #endregion
+
+    #region Unity Events
+
     private void Start()
+    {
+        InitializeMainMenu();
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeMainMenu()
     {
         ShowMainMenu();
 
         AudioManager.instance?.PlayMenuMusic();
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
     }
+
+    #endregion
+
+    #region Play
 
     public void PlayGame()
     {
         AudioManager.instance?.StopMenuMusic();
 
-        SceneManager.LoadScene("GAME Scene");
+        SceneManager.LoadScene(
+            "GAME Scene"
+        );
     }
+
+    #endregion
+
+    #region Navigation
 
     public void OpenHowToPlay()
     {
@@ -68,28 +99,32 @@ public class MainMenuManager : MonoBehaviour
         bestScorePanel.SetActive(false);
     }
 
+    #endregion
+
+    #region High Scores
+
     private void LoadScores()
     {
-        List<float> scores = HighScoreManager.GetScores();
+        List<float> scores =
+            HighScoreManager.GetScores();
 
         if (scores.Count == 0)
         {
-            scoresText.text = "No Scores Yet";
+            scoresText.text =
+                "No Scores Yet";
+
             return;
         }
 
-        string display = "";
+        string displayText = "";
 
         for (int i = 0; i < scores.Count; i++)
         {
-            display +=
-                (i + 1) +
-                ". " +
-                scores[i].ToString("F2") +
-                " sec\n";
+            displayText +=
+                $"{i + 1}. {scores[i]:F2} sec\n";
         }
 
-        scoresText.text = display;
+        scoresText.text = displayText;
     }
 
     public void ClearScores()
@@ -98,8 +133,13 @@ public class MainMenuManager : MonoBehaviour
 
         HighScoreManager.ClearScores();
 
-        scoresText.text = "No Scores Yet";
+        scoresText.text =
+            "No Scores Yet";
     }
+
+    #endregion
+
+    #region Quit
 
     public void QuitGame()
     {
@@ -111,4 +151,6 @@ public class MainMenuManager : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
+
+    #endregion
 }

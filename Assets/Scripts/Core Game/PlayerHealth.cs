@@ -5,28 +5,44 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerHealth : MonoBehaviour
 {
+    #region Health Settings
+
     [Header("Health")]
     public Image healthFill;
     public float maxHealth = 100f;
 
+    #endregion
+
+    #region Damage Settings
+
     [Header("Damage")]
     public float damageOnHit = 20f;
+
+    #endregion
+
+    #region Knockback Settings
 
     [Header("Knockback")]
     public float knockbackStrength = 8f;
     public float knockbackDuration = 0.4f;
 
+    #endregion
+
+    #region Private Variables
+
     private float currentHealth;
+
     private CharacterController controller;
+
     private bool isKnockedBack;
+
+    #endregion
+
+    #region Unity Events
 
     private void Start()
     {
-        controller = GetComponent<CharacterController>();
-
-        currentHealth = maxHealth;
-
-        UpdateHealthUI();
+        InitializeHealth();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -34,22 +50,49 @@ public class PlayerHealth : MonoBehaviour
         if (!other.CompareTag("Fire"))
             return;
 
+        HandleFireCollision(other);
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private void InitializeHealth()
+    {
+        controller =
+            GetComponent<CharacterController>();
+
+        currentHealth = maxHealth;
+
+        UpdateHealthUI();
+    }
+
+    #endregion
+
+    #region Damage System
+
+    private void HandleFireCollision(
+        Collider fire)
+    {
         TakeDamage(damageOnHit);
 
         GameManager.instance?.AddPenaltyTime(2f);
 
         AudioManager.instance?.PlayHurt();
 
-        Vector3 knockDirection =
-            (transform.position - other.transform.position).normalized;
+        Vector3 knockbackDirection =
+            (
+                transform.position -
+                fire.transform.position
+            ).normalized;
 
-        knockDirection.y = 0f;
+        knockbackDirection.y = 0f;
 
         if (!isKnockedBack)
         {
             StartCoroutine(
                 Knockback(
-                    knockDirection,
+                    knockbackDirection,
                     knockbackStrength,
                     knockbackDuration
                 )
@@ -75,6 +118,10 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Health Management
+
     public void ResetHealth()
     {
         currentHealth = maxHealth;
@@ -82,14 +129,27 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthUI();
     }
 
+    public float GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    #endregion
+
+    #region UI
+
     private void UpdateHealthUI()
     {
-        if (healthFill != null)
-        {
-            healthFill.fillAmount =
-                currentHealth / maxHealth;
-        }
+        if (healthFill == null)
+            return;
+
+        healthFill.fillAmount =
+            currentHealth / maxHealth;
     }
+
+    #endregion
+
+    #region Knockback
 
     private IEnumerator Knockback(
         Vector3 direction,
@@ -117,8 +177,5 @@ public class PlayerHealth : MonoBehaviour
         isKnockedBack = false;
     }
 
-    public float GetCurrentHealth()
-    {
-        return currentHealth;
-    }
+    #endregion
 }
