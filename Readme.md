@@ -431,7 +431,6 @@ flowchart LR
 ## 📁 Folder Structure
 
 ```
-```text
 📦 Coin-Rush
 ┣ 📂 Assets
 ┃ ┣ 📂 Audio
@@ -497,8 +496,6 @@ flowchart LR
 ┣ 📄 README.md
 ┣ 📄 LICENSE
 ┗ 📄 .gitignore
-```
-
 ```
 
 <br/>
@@ -1125,12 +1122,10 @@ timeline
 
 ### Suryansh Patel
 
-*Unity Game Developer &nbsp;·&nbsp; C# &nbsp;·&nbsp; Portfolio Project*
+*Unity Game Developer &nbsp;·&nbsp; C# &nbsp;·&nbsp; Game Project*
 
-<br/>
-
-[![GitHub](https://img.shields.io/badge/GitHub-%40Suryansh1483-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Suryansh1483)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Suryansh%20Patel-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suryansh-patel-7b32b2324/)
+[![GitHub](https://img.shields.io/badge/GITHUB-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Suryansh1483)
+[![LinkedIn](https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suryansh-patel-7b32b2324/)
 
 <br/>
 
