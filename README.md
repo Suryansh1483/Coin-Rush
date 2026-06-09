@@ -279,6 +279,26 @@ flowchart LR
 
 ---
 
+## 🎥 Gameplay Video
+
+<div align="center">
+
+<a href="https://drive.google.com/file/d/1agRdtoqqSQSEjQw67j8poEnI1FEJdpnH/view?usp=sharing">
+
+<img src="./Screenshots/Thumbnail.png" width="900">
+
+</a>
+
+### ▶️ Watch Full Gameplay
+
+Click the thumbnail above to view the gameplay video.
+
+</div>
+
+<br/>
+
+---
+
 ## ⚙️ Gameplay Mechanics
 
 ### 🔥 Fire Hazard System
